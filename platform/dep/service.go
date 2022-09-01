@@ -15,6 +15,7 @@ type Service interface {
 	GetAccountInfo(ctx context.Context) (*dep.Account, error)
 	GetDeviceDetails(ctx context.Context, serials []string) (*dep.DeviceDetailsResponse, error)
 	FetchProfile(ctx context.Context, uuid string) (*dep.Profile, error)
+	DisownDevice(ctx context.Context, serials []string) (*dep.DeviceStatusResponse, error)
 }
 
 type DEPClient interface {
@@ -24,6 +25,7 @@ type DEPClient interface {
 	FetchProfile(string) (*dep.Profile, error)
 	Account() (*dep.Account, error)
 	DeviceDetails(...string) (*dep.DeviceDetailsResponse, error)
+	DisownDevice(...string) (*dep.DeviceStatusResponse, error)
 }
 
 type DEPService struct {

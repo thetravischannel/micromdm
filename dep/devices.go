@@ -9,6 +9,7 @@ import (
 const (
 	fetchDevicesPath  = "server/devices"
 	syncDevicesPath   = "devices/sync"
+	disownDevicesPath = "devices/disown"
 	deviceDetailsPath = "devices"
 )
 
@@ -68,6 +69,10 @@ type DeviceResponse struct {
 	MoreToFollow bool      `json:"more_to_follow"`
 }
 
+type DeviceStatusResponse struct {
+	Devices map[string]string `json:"devices"`
+}
+
 func (c *Client) FetchDevices(opts ...DeviceRequestOption) (*DeviceResponse, error) {
 	request := &deviceRequestOpts{}
 	for _, option := range opts {
@@ -118,4 +123,20 @@ func (c *Client) DeviceDetails(serials ...string) (*DeviceDetailsResponse, error
 	}
 	err = c.do(req, &response)
 	return &response, errors.Wrap(err, "get device details")
+}
+
+func (c *Client) DisownDevice(serials ...string) (*DeviceStatusResponse, error) {
+	request := struct {
+		Devices []string `json:"devices"`
+	}{
+		Devices: serials,
+	}
+
+	var response DeviceStatusResponse
+	req, err := c.newRequest("POST", disownDevicesPath, request)
+	if err != nil {
+		return nil, errors.Wrap(err, "create device disown request")
+	}
+	err = c.do(req, &response)
+	return &response, errors.Wrap(err, "disown device")
 }

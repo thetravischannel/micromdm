@@ -15,6 +15,7 @@ type Endpoints struct {
 	GetDeviceDetailsEndpoint endpoint.Endpoint
 	AssignProfileEndpoint    endpoint.Endpoint
 	RemoveProfileEndpoint    endpoint.Endpoint
+	DisownDeviceEndpoint     endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
@@ -25,6 +26,7 @@ func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoin
 		FetchProfileEndpoint:     endpoint.Chain(outer, others...)(MakeFetchProfileEndpoint(s)),
 		GetAccountInfoEndpoint:   endpoint.Chain(outer, others...)(MakeGetAccountInfoEndpoint(s)),
 		GetDeviceDetailsEndpoint: endpoint.Chain(outer, others...)(MakeGetDeviceDetailsEndpoint(s)),
+		DisownDeviceEndpoint:     endpoint.Chain(outer, others...)(MakeDisownDeviceEndpoint(s)),
 	}
 }
 
@@ -35,6 +37,7 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 	// POST		/v1/dep/devices			get device details given a list of serials
 	// POST		/v1/dep/assign			assign a specific profile ID to one or more serials
 	// DELETE	/v1/dep/profiles		clear an assigned DEP profile for one or more serials
+	// POST     /v1/dep/devices/disown  remove one or more serials from ABM/ASM
 
 	r.Methods("PUT").Path("/v1/dep/profiles").Handler(httptransport.NewServer(
 		e.DefineProfileEndpoint,
@@ -67,6 +70,13 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 	r.Methods("POST").Path("/v1/dep/devices").Handler(httptransport.NewServer(
 		e.GetDeviceDetailsEndpoint,
 		decodeDeviceDetailsRequest,
+		httputil.EncodeJSONResponse,
+		options...,
+	))
+
+	r.Methods("POST").Path("/v1/dep/devices/disown").Handler(httptransport.NewServer(
+		e.DisownDeviceEndpoint,
+		decodeDisownDeviceRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))
