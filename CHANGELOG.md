@@ -1,16 +1,46 @@
-## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.9.0...main)
+## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.11.0...main)
 
-Thanks to our contributors for this release: @networkpanic, @meta-github, @korylprince, @ayush5harma, @discentem, @hrgbcxd
+## [v1.11.0](https://github.com/micromdm/micromdm/compare/v1.10.1...v1.11.0)
+
+This release includes new features and fixes.
+
+Thanks to our contributors: @williamtheaker, @korylprince, @krmzbbr
+
+- Add Dependabot updating (#857)
+- Add SoftwareUpdateSettings to Settings command (#771, #856)
+- Add tools script [install_vpp_application](https://github.com/micromdm/micromdm/blob/main/tools/api/commands/install_vpp_application) to install VPP apps (#865)
+  - Note MicroMDM doesn't support VPP/A&B itself.
+- Fix bug that prevented errors being logged on the Checkin and Connect endpoints (#871)
+- Add support for submitting "raw" plist MDM commands! (#864)
+  - See the [docs](https://github.com/micromdm/micromdm/blob/main/docs/user-guide/api-and-webhooks.md#schedule-raw-commands-with-the-api) for how to use!
+- Add [NanoMDM](https://github.com/micromdm/nanomdm)-compatible Declarative Device Management (DDM) "proxy" support. (#882)
+  - Use the `-dm` switch to extract and forward the Declarative Management protocol Endpoints to a specialized HTTP server. Such as [KMFDDM](https://github.com/jessepeterson/kmfddm).
+  - Check out the older [blog post about DDM](https://micromdm.io/blog/wwdc21-declarative-management/) for more info.
+- Project dependency updates (#858, #859, #860, #861, #867, #869, #873, #872, #874, #875, #879)
+
+## [v1.10.1](https://github.com/micromdm/micromdm/compare/v1.10.0...v1.10.1) January 24, 2023
+
+Patch release. Thanks to our contributors: @korylprince
+
+- Fix certificate check for DEP and OTA enrollment attempts (#854, #855)
+
+## [v1.10.0](https://github.com/micromdm/micromdm/compare/v1.9.0...v1.10.0) January 13, 2023
+
+This release includes new features and fixes.
+
+Thanks to our contributors for this release: @networkpanic, @meta-github, @korylprince, @ayush5harma, @discentem, @hrgbcxd, @petitout
 
 - Add support for `Priority` in ScheduleOSUpdate command (#803)
 - Added RefreshCellularPlans support (#809)
 - Add LOM commands (#839)
   - See Apple's newer [documentation on configuring MDM via LOM](https://support.apple.com/guide/deployment/lights-out-management-payload-settings-dep580cf25bc/web)
-  - Including [example configurations](https://support.apple.com/guide/deployment/lom-configuration-command-issuance-dep5e14207f2/1/web/1.0)- Fix RotateFileVaultKey panics (#801)
+  - Including [example configurations](https://support.apple.com/guide/deployment/lom-configuration-command-issuance-dep5e14207f2/1/web/1.0)
+- Fix RotateFileVaultKey panics (#801)
+- Fix for DEP client library to be thread safe (#850)
 - Add ability to sign apps when they're uploaded: `mdmctl apply app -sign-identity` (#785)
 - `mdmctl`: don't send a request body for GET requests (#821)
 - Updated `schedule_os_update` script to support more parameters. (#828)
-- Switch to using [cfgprofiles](https://github.com/jessepeterson/cfgprofiles) for profile generation (#827)
+- Switch to using [cfgprofiles](https://github.com/jessepeterson/cfgprofiles) for enrollment profile generation (#827)
 - Documentation & CLI usage improvements (#799, #811, #817, #819, #823)
 
 ## [v1.9.0](https://github.com/micromdm/micromdm/compare/v1.8.0...v1.9.0) January 27, 2022

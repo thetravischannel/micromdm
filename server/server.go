@@ -66,6 +66,7 @@ type Server struct {
 	ValidateSCEPExpiration bool
 	UDIDCertAuthWarnOnly   bool
 	Queue                  string
+	DMURL                  string
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -73,6 +74,8 @@ type Server struct {
 	EnrollService   enroll.Service
 	SCEPService     scep.Service
 	ConfigService   config.Service
+
+	CommandQueue mdm.Queue
 
 	WebhooksHTTPClient *http.Client
 }
@@ -102,15 +105,15 @@ func (c *Server) Setup(logger log.Logger) error {
 		return err
 	}
 
-	if err := c.setupCommandService(); err != nil {
-		return err
-	}
-
 	if err := c.setupWebhooks(logger); err != nil {
 		return err
 	}
 
 	if err := c.setupCommandQueue(logger); err != nil {
+		return err
+	}
+
+	if err := c.setupCommandService(); err != nil {
 		return err
 	}
 
@@ -162,7 +165,7 @@ func (c *Server) setupRemoveService() error {
 }
 
 func (c *Server) setupCommandService() error {
-	commandService, err := command.New(c.PubClient)
+	commandService, err := command.New(c.PubClient, c.CommandQueue)
 	if err != nil {
 		return err
 	}
@@ -191,6 +194,8 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 		return fmt.Errorf("invalid command queue type: %s", c.Queue)
 	}
 
+	c.CommandQueue = q
+
 	devDB, err := devicebuiltin.NewDB(c.DB)
 	if err != nil {
 		return errors.Wrap(err, "new device db")
@@ -198,7 +203,15 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 
 	var mdmService mdm.Service
 	{
-		svc := mdm.NewService(c.PubClient, q, devDB)
+		var dm mdm.DeclarativeManagement
+		if c.DMURL != "" {
+			dm, err = NewDeclarativeManagementHTTPCaller(c.DMURL, http.DefaultClient)
+			if err != nil {
+				return fmt.Errorf("setting up declarative management: %w", err)
+			}
+		}
+
+		svc := mdm.NewService(c.PubClient, q, devDB, dm)
 		mdmService = svc
 		mdmService = block.RemoveMiddleware(c.RemoveDB)(mdmService)
 
